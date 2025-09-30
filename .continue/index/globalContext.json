@@ -1,0 +1,19 @@
+{
+  "lastSelectedProfileForWorkspace": {
+    "file:///teamspace/studios/this_studio:::personal": "local"
+  },
+  "lastSelectedOrgIdForWorkspace": {
+    "file:///teamspace/studios/this_studio": "personal"
+  },
+  "selectedModelsByProfileId": {
+    "local": {
+      "chat": null,
+      "edit": null,
+      "apply": null,
+      "embed": "Transformers.js (Built-In)",
+      "autocomplete": null,
+      "rerank": null,
+      "summarize": null
+    }
+  }
+}

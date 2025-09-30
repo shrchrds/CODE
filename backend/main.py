@@ -1,3 +1,4 @@
+import time # <--- IMPORT THIS
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from .models import ComparisonRequest, ComparisonResponse, ComparisonResult
@@ -8,26 +9,20 @@ app = FastAPI(
     description="API for comparing career offers.",
     version="1.0.0"
 )
+
+# Your robust CORS configuration
 origins = [
-    # For local development if you ever run it locally
-    "http://localhost",
-    "http://localhost:8501",
-    
-    # For your final deployed Streamlit app
     "https://project-code.streamlit.app",
 ]
-
-# Add a regular expression to match any Lightning AI Cloud Space URL
-# This is the key to making it work consistently.
-# It matches https:// followed by anything, ending in .cloudspaces.litng.ai
 app.add_middleware(
     CORSMiddleware,
     allow_origins=origins,
-    allow_origin_regex="https://.*\.cloudspaces\.litng\.ai", # <--- THE ROBUST FIX
+    allow_origin_regex="https://.*\.cloudspaces\.litng\.ai|http://localhost:[0-9]+",
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
 @app.get("/")
 def read_root():
     return {"status": "API is running."}
@@ -38,20 +33,25 @@ async def compare_offers(request: ComparisonRequest):
     Accepts a list of offers and user preferences, then returns a
     full financial breakdown and alignment score for each.
     """
+    start_time = time.time() # <--- START TIMER
+    print("[TIMING] --- Request received. Starting processing. ---")
+
     results = []
     
     if not request.offers:
         raise HTTPException(status_code=400, detail="No offers provided for comparison.")
 
     for offer in request.offers:
+        yf_start_time = time.time() # <--- Start yfinance timer
         stock_price = get_stock_price_usd(offer.stock_ticker)
-        if stock_price == 0.0:
-            # Decide how to handle this. For MVP, we'll proceed but the RSU value will be 0.
-            # A better version might raise an error.
-            print(f"Warning: Could not fetch stock price for {offer.stock_ticker}. RSU value will be 0.")
+        yf_end_time = time.time() # <--- End yfinance timer
+        yf_duration = yf_end_time - yf_start_time
+        print(f"[TIMING] yfinance call for {offer.stock_ticker} took: {yf_duration:.2f} seconds")
 
-        financials = calculate_financial_breakdown(offer, stock_price)
+        if stock_price == 0.0:
+            print(f"Warning: Could not fetch stock price for {offer.stock_ticker}. RSU value will be 0.")
         
+        financials = calculate_financial_breakdown(offer, stock_price)
         score = calculate_alignment_score(financials, request.preferences)
         
         result = ComparisonResult(
@@ -61,7 +61,10 @@ async def compare_offers(request: ComparisonRequest):
         )
         results.append(result)
 
-    # Sort the results by the alignment score in descending order
     results.sort(key=lambda x: x.alignment_score, reverse=True)
+
+    end_time = time.time() # <--- END TIMER
+    total_duration = end_time - start_time
+    print(f"[TIMING] --- Total processing time inside API: {total_duration:.2f} seconds ---")
 
     return ComparisonResponse(results=results)

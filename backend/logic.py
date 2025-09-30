@@ -13,21 +13,33 @@ USD_TO_INR_RATE = 83.0  # We'll use a fixed rate for the MVP to avoid another AP
 
 def get_stock_price_usd(ticker: str) -> float:
     """Fetches the current stock price for a given ticker from Yahoo Finance."""
+    print(f"--- Attempting to fetch stock price for {ticker} ---")
     try:
         stock = yf.Ticker(ticker)
-        # 'regularMarketPrice' is a common field, 'currentPrice' is another
-        price = stock.info.get('regularMarketPrice') or stock.info.get('currentPrice')
+        print(f"--- yf.Ticker object created for {ticker} ---")
+        
+        # This .info call is often the part that fails or times out
+        info = stock.info
+        print(f"--- .info dictionary fetched for {ticker} ---")
+        
+        price = info.get('regularMarketPrice') or info.get('currentPrice')
         if price is None:
-            # Fallback for tickers that might not have regular market price (e.g., indices)
+            print(f"--- regularMarketPrice not found, falling back to history for {ticker} ---")
             hist = stock.history(period="1d")
             if not hist.empty:
                 price = hist['Close'].iloc[-1]
             else:
-                return 0.0 # Could not find price
+                print(f"--- ERROR: Could not find price in history for {ticker} ---")
+                return 0.0
+        
+        print(f"--- Successfully found price for {ticker}: {price} ---")
         return float(price)
     except Exception as e:
-        print(f"Error fetching stock price for {ticker}: {e}")
-        return 0.0 # Return 0 or handle error appropriately
+        print(f"--- CRITICAL ERROR in get_stock_price_usd for {ticker}: {e} ---")
+        # Also print the traceback for detailed debugging
+        import traceback
+        traceback.print_exc()
+        return 0.0
 
 # --- Core Calculation Functions ---
 

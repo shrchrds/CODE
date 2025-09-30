@@ -1,4 +1,5 @@
 from fastapi import FastAPI, HTTPException
+from fastapi.middleware.cors import CORSMiddleware
 from .models import ComparisonRequest, ComparisonResponse, ComparisonResult
 from .logic import get_stock_price_usd, calculate_financial_breakdown, calculate_alignment_score
 
@@ -7,7 +8,26 @@ app = FastAPI(
     description="API for comparing career offers.",
     version="1.0.0"
 )
+origins = [
+    # For local development if you ever run it locally
+    "http://localhost",
+    "http://localhost:8501",
+    
+    # For your final deployed Streamlit app
+    "https://project-code.streamlit.app",
+]
 
+# Add a regular expression to match any Lightning AI Cloud Space URL
+# This is the key to making it work consistently.
+# It matches https:// followed by anything, ending in .cloudspaces.litng.ai
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=origins,
+    allow_origin_regex="https://.*\.cloudspaces\.litng\.ai", # <--- THE ROBUST FIX
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 @app.get("/")
 def read_root():
     return {"status": "API is running."}

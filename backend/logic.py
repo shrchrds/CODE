@@ -1,5 +1,5 @@
 import yfinance as yf
-from models import OfferInput, UserPreferences, FinancialBreakdown, ComparisonResult
+from .models import OfferInput, UserPreferences, FinancialBreakdown, ComparisonResult
 
 # --- Constants ---
 # This is a very rough approximation for simplicity. A real app would be more complex.

@@ -1,6 +1,6 @@
 from fastapi import FastAPI, HTTPException
-from models import ComparisonRequest, ComparisonResponse, ComparisonResult
-from logic import get_stock_price_usd, calculate_financial_breakdown, calculate_alignment_score
+from .models import ComparisonRequest, ComparisonResponse, ComparisonResult
+from .logic import get_stock_price_usd, calculate_financial_breakdown, calculate_alignment_score
 
 app = FastAPI(
     title="Project C.O.D.E. API",

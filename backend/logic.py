@@ -1,4 +1,5 @@
 import yfinance as yf
+from functools import lru_cache
 from .models import OfferInput, UserPreferences, FinancialBreakdown, ComparisonResult
 
 # --- Constants ---
@@ -10,7 +11,7 @@ STANDARD_DEDUCTION = 50000
 USD_TO_INR_RATE = 83.0  # We'll use a fixed rate for the MVP to avoid another API call
 
 # --- Helper Functions ---
-
+@lru_cache(maxsize=128)
 def get_stock_price_usd(ticker: str) -> float:
     """Fetches the current stock price for a given ticker from Yahoo Finance."""
     print(f"--- Attempting to fetch stock price for {ticker} ---")

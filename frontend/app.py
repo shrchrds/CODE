@@ -17,7 +17,7 @@ st.markdown("""
 """)
 
 # Let's add a little interactive element to prove it's a real Streamlit app
-st.subheader("Here's a little demo element:")
+st.subheader("Check Is app Ready?")
 
 df = pd.DataFrame(
    np.random.randn(10, 2),
@@ -25,4 +25,4 @@ df = pd.DataFrame(
    
 st.line_chart(df)
 
-st.success("If you can see this, the deployment to Streamlit Community Cloud is working!")
+st.success("Hare Krishna!")
